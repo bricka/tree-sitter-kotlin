@@ -10,6 +10,11 @@
 
 The grammar is based on the [official language grammar](https://kotlinlang.org/docs/reference/grammar.html).
 
+# Why fork?
+The upstream project has trouble accepting PRs due to how it validates the generated parser. Therefore, this is an attempt to introduce some of the fixes I'm aware of.
+
+- Functional interfaces
+
 ## Project Structure
 
 | File | Description |
