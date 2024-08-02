@@ -684,10 +684,15 @@ module.exports = grammar({
 
     type_projection: $ => choice(
       seq(
-        // repeat($.type_projection_modifier),
+        repeat($.type_projection_modifier),
         $.type,
       ),
       '*',
+    ),
+
+    type_projection_modifier: $ => choice(
+      seq($.variance_modifier, repeat(NEWLINE)),
+      $.annotation,
     ),
 
     parameter: $ => seq(
