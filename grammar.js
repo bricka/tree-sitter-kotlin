@@ -52,6 +52,16 @@ module.exports = grammar({
     [$.definitely_non_nullable_type, $.receiver_type],
 
     [$.definitely_non_nullable_type],
+
+    [$.function_declaration],
+
+    [$.function_value_parameter],
+
+    [$.function_value_parameters],
+
+    [$.statements],
+
+    [$.block],
   ],
 
   rules: {
@@ -94,9 +104,86 @@ module.exports = grammar({
     _declaration: $ => choice(
       $.class_declaration,
       // $.object_declaration,
-      // $.function_declaration,
+      $.function_declaration,
       // $.property_declaration,
       $.type_alias,
+    ),
+
+    function_declaration: $ => seq(
+      optional($.modifiers),
+      'fun',
+      optional(seq(repeat(NEWLINE), $.type_parameters)),
+      optional(seq(
+        repeat(NEWLINE),
+        $.receiver_type,
+        repeat(NEWLINE),
+        '.',
+      )),
+      repeat(NEWLINE),
+      $.simple_identifier,
+      repeat(NEWLINE),
+      $.function_value_parameters,
+      optional(seq(
+        repeat(NEWLINE),
+        ':',
+        repeat(NEWLINE),
+        $.type,
+      )),
+      optional(seq(repeat(NEWLINE), $.type_constraints)),
+      optional(seq(repeat(NEWLINE), $.function_body)),
+    ),
+
+    function_body: $ => choice(
+      $.block,
+      seq(
+        '=',
+        repeat(NEWLINE),
+        $.expression,
+      )
+    ),
+
+    function_value_parameters: $ => seq(
+      '(',
+      repeat(NEWLINE),
+      optional(seq(
+        $.function_value_parameter,
+        repeat(seq(
+          repeat(NEWLINE),
+          ',',
+          repeat(NEWLINE),
+          $.function_value_parameter,
+        )),
+        optional(seq(repeat(NEWLINE), ',')),
+      )),
+      repeat(NEWLINE),
+      ')'
+    ),
+
+    function_value_parameter: $ => seq(
+      optional($.parameter_modifiers),
+      $.parameter,
+      optional(seq(
+        repeat(NEWLINE),
+        '=',
+        repeat(NEWLINE),
+        $.expression,
+      )),
+    ),
+
+    parameter_modifiers: $ => choice(
+      $.annotation,
+      seq(
+        $.parameter_modifier,
+        repeat(seq(
+          choice($.annotation, $.parameter_modifier),
+        )),
+      ),
+    ),
+
+    parameter_modifier: $ => choice(
+      'vararg',
+      'noinline',
+      'crossinline',
     ),
 
     class_declaration: $ => seq(
@@ -169,6 +256,30 @@ module.exports = grammar({
       )),
     ),
 
+    block: $ => seq(
+      '{',
+      repeat(NEWLINE),
+      optional($.statements),
+      repeat(NEWLINE),
+      '}',
+    ),
+
+    // In the official Kotlin syntax, this rule can match the empty
+    // string. So we need to instead always call it as
+    // `optional($.statements)` instead.
+    statements: $ => seq(
+      $.statement,
+      repeat(seq(
+        $._semis,
+        $.statement,
+      )),
+      optional($._semis),
+    ),
+
+    // TODO Fix
+    statement: $ => 'statement',
+
+    // TODO Fix
     expression: $ => 'expression',
 
     delegation_specifiers: $ => seq(
