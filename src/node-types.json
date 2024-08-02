@@ -354,6 +354,21 @@
     }
   },
   {
+    "type": "file_annotation",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "unescaped_annotation",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "function_body",
     "named": true,
     "fields": {},
@@ -554,6 +569,10 @@
       "types": [
         {
           "type": "class_declaration",
+          "named": true
+        },
+        {
+          "type": "file_annotation",
           "named": true
         },
         {
@@ -1010,11 +1029,34 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
           "type": "type",
+          "named": true
+        },
+        {
+          "type": "type_projection_modifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_projection_modifier",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "annotation",
+          "named": true
+        },
+        {
+          "type": "variance_modifier",
           "named": true
         }
       ]
@@ -1226,6 +1268,10 @@
   },
   {
     "type": "field",
+    "named": false
+  },
+  {
+    "type": "file",
     "named": false
   },
   {

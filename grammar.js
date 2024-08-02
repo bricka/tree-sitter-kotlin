@@ -69,6 +69,7 @@ module.exports = grammar({
     kotlin_file: $ => seq(
       optional($.shebang_line),
       repeat(NEWLINE),
+      repeat($.file_annotation),
       optional($.package_header),
       repeat($.import_header),
       repeat($._top_level_object)
@@ -80,6 +81,21 @@ module.exports = grammar({
       repeat1(NEWLINE),
     )),
 
+    file_annotation: $ => seq(
+      '@',
+      'file',
+      repeat(NEWLINE),
+      ':',
+      repeat(NEWLINE),
+      choice(
+        seq('[', repeat1($.unescaped_annotation), ']'),
+        $.unescaped_annotation,
+      ),
+      repeat(NEWLINE),
+    ),
+
+    // In the official grammar, this can match the empty string. Needs
+    // to be called as `optional($.package_header)`
     package_header: $ => seq(
       'package',
       $.identifier,
