@@ -200,7 +200,16 @@ module.exports = grammar({
       'crossinline',
     ),
 
-    class_declaration: $ => prec.left(1, seq(
+    // In the source grammar, `class_declaration` combines enum and
+    // non-enum classes, but this leads to tree-sitter conflicts.
+    // Therefore, we separate them here.
+
+    class_declaration: $ => choice(
+      $._enum_class_declaration,
+      $._non_enum_class_declaration,
+    ),
+
+    _non_enum_class_declaration: $ => prec.left(seq(
       optional($.modifiers),
       choice(
         'class',
