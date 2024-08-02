@@ -2,8 +2,27 @@
 
 const LETTER = /[\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}]/;
 const UNICODE_DIGIT = /\p{Nd}/;
+const HEX_DIGIT = /[0-9a-fA-F]/;
 const NEWLINE = '\n';
 const QUEST = '?';
+
+const PREC = {
+  DISJUNCTION: 1,
+  CONJUNCTION: 2,
+  EQUALITY: 3,
+  COMPARISON: 4,
+  GENERIC_CALL_LIKE_COMPARISON: 5,
+  INFIX_OPERATION: 6,
+  ELVIS_EXPRESSION: 7,
+  INFIX_FUNCTION_CALL: 8,
+  RANGE_EXPRESSION: 9,
+  ADDITIVE_EXPRESSION: 10,
+  MULTIPLICATIVE_EXPRESSION: 11,
+  AS_EXPRESSION: 12,
+  PREFIX_UNARY_EXPRESSION: 13,
+  POSTFIX_UNARY_EXPRESSION: 14,
+  PRIMARY_EXPRESSION: 15,
+};
 
 module.exports = grammar({
   name: "kotlin",
@@ -286,8 +305,331 @@ module.exports = grammar({
     // TODO Fix
     statement: $ => 'statement',
 
-    // TODO Fix
-    expression: $ => 'expression',
+    // In the grammar, expressions are defined heavily recursively, in
+    // order to define precedence. Because tree-sitter lets us define
+    // precedence explicitly, we can make the grammar much easier to
+    // read, and the tree make more sense.
+    expression: $ => choice(
+      $.disjunction,
+      $.conjunction,
+      $.equality,
+      $.comparison,
+      $.generic_call_like_comparison,
+      $.infix_operation,
+      $.elvis_expression,
+      $.infix_function_call,
+      $.range_expression,
+      $.additive_expression,
+      $.multiplicative_expression,
+      $.as_expression,
+      $.prefix_unary_expression,
+      $.postfix_unary_expression,
+      $.primary_expression,
+    ),
+
+    disjunction: $ => prec.left(PREC.DISJUNCTION, seq($.expression, newlines(), '||', newlines(), $.expression)),
+
+    conjunction: $ => prec.left(PREC.CONJUNCTION, seq($.expression, newlines(), '&&', newlines(), $.expression)),
+
+    equality: $ => prec.left(PREC.EQUALITY, seq($.expression, $._equality_operator, newlines(), $.expression)),
+
+    _equality_operator: $ => choice(
+      '!=',
+      '!==',
+      '==',
+      '===',
+    ),
+
+    comparison: $ => prec.left(PREC.COMPARISON, seq($.expression, $._comparison_operator, newlines(), $.expression)),
+
+    _comparison_operator: $ => choice(
+      '<',
+      '>',
+      '<=',
+      '>=',
+    ),
+
+    generic_call_like_comparison: $ => prec.left(PREC.GENERIC_CALL_LIKE_COMPARISON, seq(
+      $.expression,
+      $.call_suffix,
+    )),
+
+    call_suffix: $ => seq(
+      optional($.type_arguments),
+      choice(
+        seq(optional($.value_arguments), $.annotated_lambda),
+        $.value_arguments,
+      ),
+    ),
+
+    annotated_lambda: $ => seq(
+      repeat($.annotation),
+      optional($.label),
+      newlines(),
+      $.lambda_literal,
+    ),
+
+    label: $ => seq(
+      $.simple_identifier,
+      '@',
+      newlines(),
+    ),
+
+    lambda_literal: $ => seq(
+      '{',
+      newlines(),
+      optional(seq(
+        optional($.lambda_parameters),
+        newlines(),
+        '->',
+        newlines(),
+      )),
+      $.statements,
+      newlines(),
+      '}',
+    ),
+
+    lambda_parameters: $ => seq(
+      $.lambda_parameter,
+      repeat(seq(
+        newlines(),
+        ',',
+        $.lambda_parameter,
+      )),
+      optional(seq(
+        newlines(),
+        ',',
+      )),
+    ),
+
+    lambda_parameter: $ => choice(
+      $.variable_declaration,
+      seq(
+        $.multi_variable_declaration,
+        optional(seq(
+          newlines(),
+          ':',
+          newlines(),
+          $.type,
+        )),
+      ),
+    ),
+
+    infix_operation: $ => prec.left(PREC.INFIX_OPERATION, seq(
+      $.expression,
+      choice(
+        seq($._in_operator, newlines(), $.expression),
+        seq($._is_operator, newlines(), $.type),
+      ),
+    )),
+
+    _in_operator: $ => choice(
+      'in',
+      '!in',
+    ),
+
+    _is_operator: $ => choice(
+      'is',
+      '!is',
+    ),
+
+    elvis_expression: $ => prec.left(PREC.ELVIS_EXPRESSION, seq(
+      $.expression,
+      newlines(),
+      '?:',
+      newlines(),
+      $.expression,
+    )),
+
+    infix_function_call: $ => prec.left(PREC.INFIX_FUNCTION_CALL, seq(
+      $.expression,
+      $.simple_identifier,
+      newlines(),
+      $.expression,
+    )),
+
+    range_expression: $ => prec.left(PREC.RANGE_EXPRESSION, seq(
+      $.expression,
+      choice('..', '..<'),
+      newlines(),
+      $.expression,
+    )),
+
+    additive_expression: $ => prec.left(PREC.ADDITIVE_EXPRESSION, seq(
+      $.expression,
+      choice('+', '-'),
+      newlines(),
+      $.expression,
+    )),
+
+    multiplicative_expression: $ => prec.left(PREC.MULTIPLICATIVE_EXPRESSION, seq(
+      $.expression,
+      choice('*', '/', '%'),
+      newlines(),
+      $.expression,
+    )),
+
+    as_expression: $ => prec.left(PREC.AS_EXPRESSION, seq(
+      $.expression,
+      newlines(),
+      choice('as', 'as?'),
+      newlines(),
+      $.type,
+    )),
+
+    prefix_unary_expression: $ => prec.left(PREC.PREFIX_UNARY_EXPRESSION, seq(
+      $.unary_prefix,
+      $.expression,
+    )),
+
+    unary_prefix: $ => choice(
+      $.annotation,
+      $.label,
+      $._prefix_unary_operator,
+    ),
+
+    _prefix_unary_operator: $ => choice(
+      '++',
+      '--',
+      '-',
+      '+',
+      '!',
+    ),
+
+    postfix_unary_expression: $ => prec.left(PREC.POSTFIX_UNARY_EXPRESSION, seq(
+      $.expression,
+      $.postfix_unary_suffix,
+    )),
+
+    postfix_unary_suffix: $ => choice(
+      $.postfix_unary_operator,
+      $.type_arguments,
+      $.call_suffix,
+      $.indexing_suffix,
+      $.navigation_suffix,
+    ),
+
+    postfix_unary_operator: $ => choice(
+      '++',
+      '--',
+      '!!',
+    ),
+
+    indexing_suffix: $ => seq(
+      '[',
+      newlines(),
+      $.expression,
+      repeat(seq(newlines(), ',', newlines(), $.expression)),
+      optional(seq(newlines(), ',')),
+      newlines(),
+      ']',
+    ),
+
+    navigation_suffix: $ => seq(
+      $._member_access_operator,
+      newlines(),
+      choice($.simple_identifier, $.parenthesized_expression, 'class'),
+    ),
+
+    _member_access_operator: $ => choice(
+      seq(newlines(), '.'),
+      seq(newlines(), '?.'),
+      '::',
+    ),
+
+    primary_expression: $ => prec.left(PREC.PRIMARY_EXPRESSION, choice(
+      $.parenthesized_expression,
+      $.simple_identifier,
+      $.literal_constant,
+      $.string_literal,
+      $.callable_reference,
+      $.function_literal,
+      $.object_literal,
+      $.collection_literal,
+      $.this_expression,
+      $.super_expression,
+      $.if_expression,
+      $.when_expression,
+      $.try_expression,
+      $.jump_expression,
+    )),
+
+    parenthesized_expression: $ => seq(
+      '(',
+      newlines(),
+      $.expression,
+      newlines(),
+      ')',
+    ),
+
+    literal_constant: $ => choice(
+      $.boolean_literal,
+      $.integer_literal,
+      $.hex_literal,
+      $.bin_literal,
+      $.character_literal,
+      $.real_literal,
+      'null',
+      $.long_literal,
+      $.unsigned_literal,
+    ),
+
+    boolean_literal: $ => choice('true', 'false'),
+
+    integer_literal: $ => choice(
+      /[1-9][0-9_]*[0-9]/,
+      /\d/,
+    ),
+
+    hex_literal: $ => token(seq(
+      /0[xX]/,
+      choice(
+        seq(HEX_DIGIT, repeat(choice(HEX_DIGIT, '_')), HEX_DIGIT),
+        HEX_DIGIT
+      ),
+    )),
+
+    bin_literal: $ => choice(
+      /0[bB][01][01_][01]/,
+      /0[bB][01]/,
+    ),
+
+    character_literal: $ => seq(
+      "'",
+      choice($.escape_seq, /[^\r\n']/),
+      "'",
+    ),
+
+    escape_seq: $ => choice($.uni_character_literal, $.escaped_identifier),
+
+    uni_character_literal: $ => token(seq('\\u', HEX_DIGIT, HEX_DIGIT, HEX_DIGIT, HEX_DIGIT)),
+
+    escaped_identifier: $ => /\\[tbrn'"\\$]/,
+
+    real_literal: $ => choice($.float_literal, $.double_literal),
+
+    float_literal: $ => choice(
+      seq($.double_literal, /[fF]/),
+      seq($._dec_digits, /[fF]/),
+    ),
+
+    double_literal: $ => choice(
+      seq(optional($._dec_digits), '.', $._dec_digits, optional($.double_exponent)),
+      seq($._dec_digits, optional($.double_exponent)),
+    ),
+
+    double_exponent: $ => seq(/[eE]/, optional(/[+-]/), $._dec_digits),
+
+    long_literal: $ => seq(
+      choice($.integer_literal, $.hex_literal, $.bin_literal),
+      'L',
+    ),
+
+    unsigned_literal: $ => seq(
+      choice($.integer_literal, $.hex_literal, $.bin_literal),
+      /[uU]/,
+      optional('L'),
+    ),
 
     object_declaration: $ => prec.left(1, seq(
       optional($.modifiers),
@@ -869,6 +1211,11 @@ module.exports = grammar({
       /[^\r\n`]+/,
       '`',
     )),
+
+    _dec_digits: $ => choice(
+      /\d[\d_]*\d/,
+      /\d/,
+    ),
 
     _semi: $ => seq(
       choice(';', NEWLINE),
