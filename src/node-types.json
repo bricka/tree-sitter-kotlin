@@ -1,5 +1,24 @@
 [
   {
+    "type": "annotated_delegation_specifier",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "annotation",
+          "named": true
+        },
+        {
+          "type": "delegation_specifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "annotation",
     "named": true,
     "fields": {},
@@ -24,9 +43,128 @@
     "fields": {}
   },
   {
+    "type": "class_body",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "class_member_declaration",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "class_declaration",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "class_body",
+          "named": true
+        },
+        {
+          "type": "delegation_specifiers",
+          "named": true
+        },
+        {
+          "type": "enum_class_body",
+          "named": true
+        },
+        {
+          "type": "modifiers",
+          "named": true
+        },
+        {
+          "type": "primary_constructor",
+          "named": true
+        },
+        {
+          "type": "simple_identifier",
+          "named": true
+        },
+        {
+          "type": "type_constraints",
+          "named": true
+        },
+        {
+          "type": "type_parameters",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "class_member_declaration",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "class_declaration",
+          "named": true
+        },
+        {
+          "type": "type_alias",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "class_modifier",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "class_parameter",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "expression",
+          "named": true
+        },
+        {
+          "type": "modifiers",
+          "named": true
+        },
+        {
+          "type": "simple_identifier",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "class_parameters",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "class_parameter",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "definitely_non_nullable_type",
@@ -42,6 +180,101 @@
         },
         {
           "type": "user_type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "delegation_specifier",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "function_type",
+          "named": true
+        },
+        {
+          "type": "user_type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "delegation_specifiers",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "annotated_delegation_specifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "enum_class_body",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "class_member_declaration",
+          "named": true
+        },
+        {
+          "type": "enum_entries",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "enum_entries",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "enum_entry",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "enum_entry",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "class_body",
+          "named": true
+        },
+        {
+          "type": "modifiers",
+          "named": true
+        },
+        {
+          "type": "simple_identifier",
+          "named": true
+        },
+        {
+          "type": "value_arguments",
           "named": true
         }
       ]
@@ -146,6 +379,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "class_declaration",
+          "named": true
+        },
         {
           "type": "import_header",
           "named": true
@@ -281,6 +518,25 @@
       "types": [
         {
           "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "primary_constructor",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "class_parameters",
+          "named": true
+        },
+        {
+          "type": "modifiers",
           "named": true
         }
       ]
@@ -430,6 +686,44 @@
     }
   },
   {
+    "type": "type_constraint",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "annotation",
+          "named": true
+        },
+        {
+          "type": "simple_identifier",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_constraints",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "type_constraint",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "type_modifier",
     "named": true,
     "fields": {}
@@ -552,6 +846,44 @@
     }
   },
   {
+    "type": "value_argument",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "annotation",
+          "named": true
+        },
+        {
+          "type": "expression",
+          "named": true
+        },
+        {
+          "type": "simple_identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "value_arguments",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "value_argument",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "variance_modifier",
     "named": true,
     "fields": {}
@@ -633,6 +965,14 @@
     "named": false
   },
   {
+    "type": "class",
+    "named": false
+  },
+  {
+    "type": "constructor",
+    "named": false
+  },
+  {
     "type": "data",
     "named": false
   },
@@ -649,7 +989,15 @@
     "named": false
   },
   {
+    "type": "expression",
+    "named": true
+  },
+  {
     "type": "field",
+    "named": false
+  },
+  {
+    "type": "fun",
     "named": false
   },
   {
@@ -666,6 +1014,10 @@
   },
   {
     "type": "inner",
+    "named": false
+  },
+  {
+    "type": "interface",
     "named": false
   },
   {
@@ -717,7 +1069,27 @@
     "named": false
   },
   {
+    "type": "val",
+    "named": false
+  },
+  {
     "type": "value",
+    "named": false
+  },
+  {
+    "type": "var",
+    "named": false
+  },
+  {
+    "type": "where",
+    "named": false
+  },
+  {
+    "type": "{",
+    "named": false
+  },
+  {
+    "type": "}",
     "named": false
   }
 ]

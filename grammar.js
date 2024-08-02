@@ -12,6 +12,34 @@ module.exports = grammar({
     [$.type_parameter],
 
     [$.function_type_parameters],
+
+    [$.class_declaration],
+
+    [$.delegation_specifiers],
+
+    [$.modifier],
+
+    [$.type_constraints],
+
+    [$.class_body, $.enum_class_body],
+
+    [$.enum_class_body],
+
+    [$.enum_entries],
+
+    [$.enum_entry],
+
+    [$.class_parameters],
+
+    [$.class_parameter],
+
+    [$._semis],
+
+    [$.annotated_delegation_specifier],
+
+    [$.value_argument],
+
+    [$.class_body],
   ],
 
   rules: {
@@ -52,11 +80,223 @@ module.exports = grammar({
 
     // TODO: More declarations
     _declaration: $ => choice(
-      // $.class_declaration,
+      $.class_declaration,
       // $.object_declaration,
       // $.function_declaration,
       // $.property_declaration,
       $.type_alias,
+    ),
+
+    class_declaration: $ => seq(
+      optional($.modifiers),
+      choice(
+        'class',
+        seq(
+          optional(seq('fun', repeat(NEWLINE))),
+          'interface',
+        ),
+      ),
+      repeat(NEWLINE),
+      $.simple_identifier,
+      optional(seq(repeat(NEWLINE), $.type_parameters)),
+      optional(seq(repeat(NEWLINE), $.primary_constructor)),
+      optional(seq(
+        repeat(NEWLINE),
+        ':',
+        $.delegation_specifiers,
+      )),
+      optional(seq(repeat(NEWLINE), $.type_constraints)),
+      optional(seq(
+        repeat(NEWLINE),
+        choice($.class_body, $.enum_class_body),
+      )),
+    ),
+
+    primary_constructor: $ => seq(
+      optional(seq(
+        optional($.modifiers),
+        'constructor',
+        repeat(NEWLINE),
+      )),
+      $.class_parameters,
+    ),
+
+    class_parameters: $ => seq(
+      '(',
+      repeat(NEWLINE),
+      optional(seq(
+        $.class_parameter,
+        repeat(seq(
+          repeat(NEWLINE),
+          ',',
+          repeat(NEWLINE),
+          $.class_parameter,
+          optional(seq(
+            repeat(NEWLINE),
+            ',',
+          )),
+        )),
+      )),
+      repeat(NEWLINE),
+      ')',
+    ),
+
+    class_parameter: $ => seq(
+      optional($.modifiers),
+      optional(choice('val', 'var')),
+      repeat(NEWLINE),
+      $.simple_identifier,
+      ':',
+      repeat(NEWLINE),
+      $.type,
+      optional(seq(
+        repeat(NEWLINE),
+        '=',
+        repeat(NEWLINE),
+        $.expression,
+      )),
+    ),
+
+    expression: $ => 'expression',
+
+    delegation_specifiers: $ => seq(
+      $.annotated_delegation_specifier,
+      repeat(seq(
+        repeat(NEWLINE),
+        ',',
+        repeat(NEWLINE),
+        $.annotated_delegation_specifier,
+      )),
+    ),
+
+    annotated_delegation_specifier: $ => seq(
+      repeat($.annotation),
+      repeat(NEWLINE),
+      $.delegation_specifier,
+    ),
+
+    delegation_specifier: $ => choice(
+      // $.constructor_invocation,
+      // $.explicit_delegation,
+      $.user_type,
+      $.function_type,
+      seq(
+        'suspend',
+        repeat(NEWLINE),
+        $.function_type,
+      ),
+    ),
+
+    type_constraints: $ => seq(
+      'where',
+      repeat(NEWLINE),
+      $.type_constraint,
+      repeat(seq(
+        repeat(NEWLINE),
+        ',',
+        repeat(NEWLINE),
+        $.type_constraint,
+      )),
+    ),
+
+    type_constraint: $ => seq(
+      repeat($.annotation),
+      $.simple_identifier,
+      repeat(NEWLINE),
+      ':',
+      repeat(NEWLINE),
+      $.type,
+    ),
+
+    class_body: $ => seq(
+      '{',
+      repeat(NEWLINE),
+      repeat(seq(
+        $.class_member_declaration,
+        optional($._semis),
+      )),
+      repeat(NEWLINE),
+      '}'
+    ),
+
+    enum_class_body: $ => seq(
+      '{',
+      repeat(NEWLINE),
+      optional($.enum_entries),
+      optional(seq(
+        repeat(NEWLINE),
+        ';',
+        repeat(NEWLINE),
+        repeat(seq(
+          $.class_member_declaration,
+          optional($._semis),
+        )),
+      )),
+      repeat(NEWLINE),
+      '}'
+    ),
+
+    enum_entries: $ => seq(
+      $.enum_entry,
+      repeat(seq(
+        repeat(NEWLINE),
+        ',',
+        repeat(NEWLINE),
+        $.enum_entry,
+        optional(','),
+      )),
+    ),
+
+    enum_entry: $ => seq(
+      optional(seq($.modifiers, repeat(NEWLINE))),
+      $.simple_identifier,
+      optional(seq(
+        repeat(NEWLINE),
+        $.value_arguments,
+      )),
+      optional(seq(
+        repeat(NEWLINE),
+        $.class_body,
+      )),
+    ),
+
+    value_arguments: $ => seq(
+      '(',
+      repeat(NEWLINE),
+      optional(seq(
+        $.value_argument,
+        repeat(seq(
+          repeat(NEWLINE),
+          ',',
+          repeat(NEWLINE),
+          $.value_argument,
+        )),
+        optional(seq(
+          repeat(NEWLINE),
+          ',',
+        )),
+        repeat(NEWLINE),
+      )),
+      ')',
+    ),
+
+    value_argument: $ => seq(
+      optional($.annotation),
+      repeat(NEWLINE),
+      optional(seq(
+        $.simple_identifier,
+        repeat(NEWLINE),
+        '=',
+        repeat(NEWLINE),
+      )),
+      optional('*'),
+      repeat(NEWLINE),
+      $.expression,
+    ),
+
+    // TODO The rest
+    class_member_declaration: $ => choice(
+      $._declaration,
     ),
 
     type_alias: $ => prec.left(seq(
