@@ -132,6 +132,10 @@
           "named": true
         },
         {
+          "type": "object_declaration",
+          "named": true
+        },
+        {
           "type": "type_alias",
           "named": true
         }
@@ -584,6 +588,10 @@
           "named": true
         },
         {
+          "type": "object_declaration",
+          "named": true
+        },
+        {
           "type": "package_header",
           "named": true
         },
@@ -665,6 +673,33 @@
         },
         {
           "type": "type_reference",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "object_declaration",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "class_body",
+          "named": true
+        },
+        {
+          "type": "delegation_specifiers",
+          "named": true
+        },
+        {
+          "type": "modifiers",
+          "named": true
+        },
+        {
+          "type": "simple_identifier",
           "named": true
         }
       ]
@@ -1300,6 +1335,10 @@
   },
   {
     "type": "noinline",
+    "named": false
+  },
+  {
+    "type": "object",
     "named": false
   },
   {

@@ -119,7 +119,7 @@ module.exports = grammar({
       $.class_declaration,
       $.object_declaration,
       $.function_declaration,
-      // $.property_declaration,
+      $.property_declaration,
       $.type_alias,
     ),
 
@@ -309,6 +309,121 @@ module.exports = grammar({
       )),
       optional(seq(repeat(NEWLINE), $.class_body)),
     )),
+
+    property_declaration: $ => seq(
+      optional($.modifiers),
+      choice('val', 'var'),
+      optional(seq(repeat(NEWLINE), $.type_parameters)),
+      optional(seq(
+        repeat(NEWLINE),
+        $.receiver_type,
+        repeat(NEWLINE),
+        '.',
+      )),
+      choice(
+        seq(repeat(NEWLINE), $.multi_variable_declaration),
+        $.variable_declaration,
+      ),
+      optional(seq(repeat(NEWLINE), $.type_constraints)),
+      optional(seq(
+        repeat(NEWLINE),
+        choice(
+          seq('=', repeat(NEWLINE), $.expression),
+          $.property_delegate,
+        ),
+      )),
+      optional(seq(repeat(NEWLINE), ';')),
+      repeat(NEWLINE),
+      choice(
+        seq(optional($.getter), optional(seq(repeat(NEWLINE), optional($._semi), $.setter))),
+        seq(optional($.setter), optional(seq(repeat(NEWLINE), optional($._semi), $.getter))),
+      ),
+    ),
+
+    multi_variable_declaration: $ => seq(
+      '(',
+      repeat(NEWLINE),
+      $.variable_declaration,
+      repeat(seq(
+        repeat(NEWLINE),
+        ',',
+        repeat(NEWLINE),
+        $.variable_declaration,
+      )),
+      optional(seq(repeat(NEWLINE), ',')),
+      repeat(NEWLINE),
+      ')',
+    ),
+
+    variable_declaration: $ => seq(
+      repeat($.annotation),
+      repeat(NEWLINE),
+      $.simple_identifier,
+      optional(seq(
+        repeat(NEWLINE),
+        ':',
+        repeat(NEWLINE),
+        $.type,
+      )),
+    ),
+
+    property_delegate: $ => seq(
+      'by',
+      repeat(NEWLINE),
+      $.expression,
+    ),
+
+    getter: $ => seq(
+      optional($.modifiers),
+      'get',
+      optional(seq(
+        repeat(NEWLINE),
+        '(',
+        repeat(NEWLINE),
+        ')',
+        optional(seq(
+          repeat(NEWLINE),
+          ':',
+          repeat(NEWLINE),
+          $.type,
+        )),
+        repeat(NEWLINE),
+        $.function_body,
+      )),
+    ),
+
+    setter: $ => seq(
+      optional($.modifiers),
+      'set',
+      optional(seq(
+        repeat(NEWLINE),
+        '(',
+        repeat(NEWLINE),
+        $.function_value_parameter_with_optional_type,
+        optional(seq(repeat(NEWLINE), ',')),
+        repeat(NEWLINE),
+        ')',
+        optional(seq(
+          repeat(NEWLINE),
+          ':',
+          repeat(NEWLINE),
+          $.type,
+        )),
+        repeat(NEWLINE),
+        $.function_body,
+      )),
+    ),
+
+    function_value_parameter_with_optional_type: $ => seq(
+      optional($.parameter_modifiers),
+      $.parameter_with_optional_type,
+      optional(seq(
+        repeat(NEWLINE),
+        '=',
+        repeat(NEWLINE),
+        $.expression,
+      )),
+    ),
 
     delegation_specifiers: $ => seq(
       $.annotated_delegation_specifier,
@@ -729,6 +844,16 @@ module.exports = grammar({
       ':',
       repeat(NEWLINE),
       $.type,
+    ),
+
+    parameter_with_optional_type: $ => seq(
+      $.simple_identifier,
+      repeat(NEWLINE),
+      optional(seq(
+        ':',
+        repeat(NEWLINE),
+        $.type,
+      )),
     ),
 
     identifier: $ => prec.left(1, seq(
