@@ -40,6 +40,18 @@ module.exports = grammar({
     [$.value_argument],
 
     [$.class_body],
+
+    [$.constructor_invocation, $.unescaped_annotation],
+
+    [$.delegation_specifier, $.explicit_delegation],
+
+    [$.delegation_specifier, $.type_modifier],
+
+    [$.receiver_type],
+
+    [$.definitely_non_nullable_type, $.receiver_type],
+
+    [$.definitely_non_nullable_type],
   ],
 
   rules: {
@@ -176,8 +188,8 @@ module.exports = grammar({
     ),
 
     delegation_specifier: $ => choice(
-      // $.constructor_invocation,
-      // $.explicit_delegation,
+      $.constructor_invocation,
+      $.explicit_delegation,
       $.user_type,
       $.function_type,
       seq(
@@ -185,6 +197,20 @@ module.exports = grammar({
         repeat(NEWLINE),
         $.function_type,
       ),
+    ),
+
+    constructor_invocation: $ => seq(
+      $.user_type,
+      repeat(NEWLINE),
+      $.value_arguments,
+    ),
+
+    explicit_delegation: $ => seq(
+      choice($.user_type, $.function_type),
+      repeat(NEWLINE),
+      'by',
+      repeat(NEWLINE),
+      $.expression,
     ),
 
     type_constraints: $ => seq(
@@ -360,7 +386,7 @@ module.exports = grammar({
     ),
 
     unescaped_annotation: $ => choice(
-      // $.constructor_invocation,
+      $.constructor_invocation,
       $.user_type,
     ),
 
@@ -491,17 +517,17 @@ module.exports = grammar({
     )),
 
     definitely_non_nullable_type: $ => seq(
-      // repeat($.type_modifier),
+      repeat($.type_modifier),
       choice($.user_type, $.parenthesized_type),
       repeat(NEWLINE),
       '&',
       repeat(NEWLINE),
-      // repeat($.type_modifier),
+      repeat($.type_modifier),
       choice($.user_type, $.parenthesized_type),
     ),
 
     receiver_type: $ => seq(
-      // repeat($.type_modifier),
+      repeat($.type_modifier),
       choice(
         $.parenthesized_type,
         $.nullable_type,

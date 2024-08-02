@@ -167,6 +167,25 @@
     }
   },
   {
+    "type": "constructor_invocation",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "user_type",
+          "named": true
+        },
+        {
+          "type": "value_arguments",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "definitely_non_nullable_type",
     "named": true,
     "fields": {},
@@ -176,6 +195,10 @@
       "types": [
         {
           "type": "parenthesized_type",
+          "named": true
+        },
+        {
+          "type": "type_modifier",
           "named": true
         },
         {
@@ -193,6 +216,14 @@
       "multiple": false,
       "required": true,
       "types": [
+        {
+          "type": "constructor_invocation",
+          "named": true
+        },
+        {
+          "type": "explicit_delegation",
+          "named": true
+        },
         {
           "type": "function_type",
           "named": true
@@ -275,6 +306,29 @@
         },
         {
           "type": "value_arguments",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "explicit_delegation",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "expression",
+          "named": true
+        },
+        {
+          "type": "function_type",
+          "named": true
+        },
+        {
+          "type": "user_type",
           "named": true
         }
       ]
@@ -547,7 +601,7 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
         {
@@ -556,6 +610,10 @@
         },
         {
           "type": "parenthesized_type",
+          "named": true
+        },
+        {
+          "type": "type_modifier",
           "named": true
         },
         {
@@ -824,6 +882,10 @@
       "required": true,
       "types": [
         {
+          "type": "constructor_invocation",
+          "named": true
+        },
+        {
           "type": "user_type",
           "named": true
         }
@@ -962,6 +1024,10 @@
   },
   {
     "type": "as",
+    "named": false
+  },
+  {
+    "type": "by",
     "named": false
   },
   {
