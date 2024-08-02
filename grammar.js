@@ -13,8 +13,6 @@ module.exports = grammar({
 
     [$.function_type_parameters],
 
-    [$.class_declaration],
-
     [$.delegation_specifiers],
 
     [$.modifier],
@@ -119,7 +117,7 @@ module.exports = grammar({
     // TODO: More declarations
     _declaration: $ => choice(
       $.class_declaration,
-      // $.object_declaration,
+      $.object_declaration,
       $.function_declaration,
       // $.property_declaration,
       $.type_alias,
@@ -202,7 +200,7 @@ module.exports = grammar({
       'crossinline',
     ),
 
-    class_declaration: $ => seq(
+    class_declaration: $ => prec.left(1, seq(
       optional($.modifiers),
       choice(
         'class',
@@ -225,7 +223,7 @@ module.exports = grammar({
         repeat(NEWLINE),
         choice($.class_body, $.enum_class_body),
       )),
-    ),
+    )),
 
     primary_constructor: $ => seq(
       optional(seq(
@@ -297,6 +295,20 @@ module.exports = grammar({
 
     // TODO Fix
     expression: $ => 'expression',
+
+    object_declaration: $ => prec.left(1, seq(
+      optional($.modifiers),
+      'object',
+      repeat(NEWLINE),
+      $.simple_identifier,
+      optional(seq(
+        repeat(NEWLINE),
+        ':',
+        repeat(NEWLINE),
+        $.delegation_specifiers,
+      )),
+      optional(seq(repeat(NEWLINE), $.class_body)),
+    )),
 
     delegation_specifiers: $ => seq(
       $.annotated_delegation_specifier,
